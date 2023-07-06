@@ -3,6 +3,7 @@ import numpy as np
 
 size  = [1000, 700]
 
+
 class Player:
     def __init__(self, coords, color):
         self.coords = coords
@@ -24,13 +25,21 @@ class Player:
         direction = np.random.randint(-1, 2, size = (2))
         self.x += direction[0]*self.step
         self.y += direction[1]*self.step
+        if self.x<self.size:
+            self.x=self.size
+        if self.x>size[0]-self.size:
+            self.x=size[0]-self.size
+        if self.y<self.size:
+            self.y=self.size
+        if self.y>size[1]-self.size:
+            self.y = size[1]-self.size
         self.coords = [self.x, self.y]
         if self.x<0 or self.x>size[0] or self.y<0 or self.y>size[1]:
             print("found one")
 
         matrix[int(self.x), int(self.y)] = self.color
         self.shape = board.create_oval(self.x-self.size, self.y-self.size, self.x+self.size, self.y+self.size, width = 0, fill=self.color)
-        board.after(1000, self.move, matrix, board)
+        # board.after(3000, self.move, matrix, board)
 
 
 class Win:
