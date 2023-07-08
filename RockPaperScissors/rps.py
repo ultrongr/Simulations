@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 
 size  = [1000, 700]
-
+np.random.seed(123)
 
 class Player:
     def __init__(self, coords, color):
