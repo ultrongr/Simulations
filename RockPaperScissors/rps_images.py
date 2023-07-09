@@ -9,7 +9,7 @@ np.random.seed(123)
 class Player:
     def __init__(self, coords, type):
         self.size = 20
-        self.step = 10
+        self.step = 3
         self.coords = coords
         self.x = coords[0]
         self.y = coords[1]
@@ -27,12 +27,12 @@ class Player:
         board.create_image(self.x,self.y, anchor='nw', image=self.img)
         board.pack()
     
-    def move(self, matrix, board):
+    def move(self, win):
         
         
-        matrix[int(self.x), int(self.y)] = "0"
+        win.matrix[int(self.x), int(self.y)] = "0"
         
-        direction = np.random.randint(-1, 2, size = (2))
+        direction = np.random.randint(-1, 2, size = 2)
         self.x += direction[0]*self.step
         self.y += direction[1]*self.step
         if self.x<self.size:
@@ -45,8 +45,8 @@ class Player:
             self.y = size[1]-self.size
         self.coords = [self.x, self.y]
 
-        matrix[int(self.x), int(self.y)] = self.type
-        self.draw(board)
+        win.matrix[int(self.x), int(self.y)] = self.type
+        self.draw(win.board)
 
 
 
@@ -57,7 +57,9 @@ class Win:
         self.matrix = np.ndarray(size, dtype=str)
         self.matrix.fill("0")
         self.players=[]
+        self.lists={"rock":[], "scissors":[], "paper":[]}
         self.steps=0
+        self.radius = 10
 
         self.board.pack()
         self.populate()
@@ -67,7 +69,9 @@ class Win:
         types= ["rock",  "scissors", "paper"]
         for i in range(100,size[0]-1, 100):
             for j in range(100, size[1]-1, 100):
-                self.players.append(Player([i, j], np.random.choice(types)))
+                type = np.random.choice(types)
+                self.players.append(Player([i, j], type))
+                self.lists[type].append(self.players[-1])
         self.step()
     
     def step(self):
@@ -79,10 +83,14 @@ class Win:
             # start_time = time.time()
             self.start_time = time.time()
         for player in self.players:
-            player.move(self.matrix, self.board)
+            player.move(self)
         # if not self.steps%10:
             # print(time.time()-start_time)
-        self.board.after(10, self.step)
+        self.board.after(50, self.step)
+    
+    def check(self):
+        return
+
 
 root = tk.Tk()
 root.geometry("1200x900+10+10")
