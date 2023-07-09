@@ -1,6 +1,7 @@
 import tkinter as tk
 import numpy as np
 from PIL import ImageTk,Image 
+import time
 
 size  = [1000, 700]
 np.random.seed(123)
@@ -24,7 +25,6 @@ class Player:
             board.delete(self.img)
         self.img = ImageTk.PhotoImage(Image.open(f"{self.type}.png"))
         board.create_image(self.x,self.y, anchor='nw', image=self.img)
-        # self.shape = board.create_oval(self.x-self.size, self.y-self.size, self.x+self.size, self.y+self.size, width = 0, fill=self.color)
         board.pack()
     
     def move(self, matrix, board):
@@ -57,32 +57,32 @@ class Win:
         self.matrix = np.ndarray(size, dtype=str)
         self.matrix.fill("0")
         self.players=[]
-        # img = tk.PhotoImage(file="ball.ppm")      
-        # self.board.create_image(200,200, anchor="nw", image=img)  
-        
-        # img = ImageTk.PhotoImage(Image.open("ball.jpg"))  
-        # self.board.create_image(20, 20, anchor="nw", image=img) 
-        
-        # img = ImageTk.PhotoImage(Image.open("scissors.png"))
-        # self.board.create_image(5,5, anchor='nw', image=img)
-        # self.board.image = img
+        self.steps=0
+
         self.board.pack()
-        
         self.populate()
         
     
     def populate(self):
-        images= ["rock",  "scissors"] # "paper.png",
+        types= ["rock",  "scissors", "paper"]
         for i in range(100,size[0]-1, 100):
             for j in range(100, size[1]-1, 100):
-                self.players.append(Player([i, j], np.random.choice(images)))
-        
+                self.players.append(Player([i, j], np.random.choice(types)))
         self.step()
     
     def step(self):
+        # print(len(self.players))
+        self.steps+=1
+        if not self.steps%10:
+            self.board.delete("all")
+            # print("deleted")
+            # start_time = time.time()
+            self.start_time = time.time()
         for player in self.players:
             player.move(self.matrix, self.board)
-        self.board.after(1, self.step)
+        # if not self.steps%10:
+            # print(time.time()-start_time)
+        self.board.after(10, self.step)
 
 root = tk.Tk()
 root.geometry("1200x900+10+10")
