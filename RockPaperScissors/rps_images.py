@@ -30,7 +30,7 @@ class Player:
     def move(self, win):
         
         
-        win.matrix[int(self.x), int(self.y)] = "0"
+        # win.matrix[int(self.x), int(self.y)] = "0"
         
         direction = np.random.randint(-1, 2, size = 2)
         self.x += direction[0]*self.step
