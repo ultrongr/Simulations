@@ -30,11 +30,47 @@ class Player:
     def move(self, win):
         
         
-        # win.matrix[int(self.x), int(self.y)] = "0"
+        win.matrix[int(self.x), int(self.y)] = "0"
+
+        if not np.random.randint(0, 3):
+            """Avoid enemies"""
+            closest_enemy = None
+            closest_distance = 100000
+            for enemy in win.lists[win.loses[self.type]]:
+                if closest_distance>self.distance(enemy):
+                    closest_distance = self.distance(enemy)
+                    closest_enemy = enemy
+            if closest_enemy and closest_distance>0:            
+                max_distance = max(abs(closest_enemy.x-self.x), abs(closest_enemy.y-self.y))
+                self.direction = [-(closest_enemy.x-self.x)/max_distance, -(closest_enemy.y-self.y)/max_distance]
+                self.x += self.direction[0]*self.step
+                self.y += self.direction[1]*self.step
+
+        else:
+            """Hunt and kill"""
+            closest_pray = None
+            closest_distance = 100000
+            for pray in win.lists[win.wins[self.type]]:
+                if closest_distance>self.distance(pray):
+                    closest_distance = self.distance(pray)
+                    closest_pray = pray
+            if closest_pray:
+                max_distance = max(abs(closest_pray.x-self.x), abs(closest_pray.y-self.y))
+                self.direction = [(closest_pray.x-self.x)/max_distance, (closest_pray.y-self.y)/max_distance]
+                self.x += self.direction[0]*self.step
+                self.y += self.direction[1]*self.step
+
+
+
+
         
-        direction = np.random.randint(-1, 2, size = 2)
-        self.x += direction[0]*self.step
-        self.y += direction[1]*self.step
+        """Random walk"""
+        # direction = np.random.randint(-1, 2, size = 2)
+        # self.x += direction[0]*self.step
+        # self.y += direction[1]*self.step
+
+
+
         if self.x<self.size:
             self.x=self.size
         if self.x>size[0]-self.size:
