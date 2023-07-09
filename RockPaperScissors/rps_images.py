@@ -6,20 +6,23 @@ size  = [1000, 700]
 np.random.seed(123)
 
 class Player:
-    def __init__(self, coords, color):
+    def __init__(self, coords, type):
+        self.size = 20
+        self.step = 10
         self.coords = coords
         self.x = coords[0]
         self.y = coords[1]
-        self.color = color
+        # self.color = color
         self.shape  = None
-        self.size = 10
-        self.step = 10
+        self.type = type
+        self.img=None
+        
         self.img=None
     
     def draw(self, board):
         if self.img:   
             board.delete(self.img)
-        self.img = ImageTk.PhotoImage(Image.open("scissors.png"))
+        self.img = ImageTk.PhotoImage(Image.open(f"{self.type}.png"))
         board.create_image(self.x,self.y, anchor='nw', image=self.img)
         # self.shape = board.create_oval(self.x-self.size, self.y-self.size, self.x+self.size, self.y+self.size, width = 0, fill=self.color)
         board.pack()
@@ -42,10 +45,9 @@ class Player:
             self.y = size[1]-self.size
         self.coords = [self.x, self.y]
 
-        matrix[int(self.x), int(self.y)] = self.color
+        matrix[int(self.x), int(self.y)] = self.type
         self.draw(board)
-        # self.shape = board.create_oval(self.x-self.size, self.y-self.size, self.x+self.size, self.y+self.size, width = 0, fill=self.color)
-        # board.after(3000, self.move, matrix, board)
+
 
 
 class Win:
@@ -70,10 +72,10 @@ class Win:
         
     
     def populate(self):
-        colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "black"]
+        images= ["rock",  "scissors"] # "paper.png",
         for i in range(100,size[0]-1, 100):
             for j in range(100, size[1]-1, 100):
-                self.players.append(Player([i, j], np.random.choice(colors)))
+                self.players.append(Player([i, j], np.random.choice(images)))
         
         self.step()
     
