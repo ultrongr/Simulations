@@ -48,7 +48,8 @@ class Player:
         win.matrix[int(self.x), int(self.y)] = self.type
         self.draw(win.board)
 
-
+    def distance(self, enemy):
+        return abs(self.x-enemy.x)+abs(self.y-enemy.y)
 
 class Win:
 
@@ -57,21 +58,29 @@ class Win:
         self.matrix = np.ndarray(size, dtype=str)
         self.matrix.fill("0")
         self.players=[]
+        self.types= ["rock",  "scissors", "paper"]
         self.lists={"rock":[], "scissors":[], "paper":[]}
+        self.wins = {"rock":"scissors", "scissors":"paper", "paper":"rock"}
+        self.loses = {"rock":"paper", "scissors":"rock", "paper":"scissors"}
         self.steps=0
-        self.radius = 10
+        self.radius = 20
 
         self.board.pack()
         self.populate()
         
     
     def populate(self):
-        types= ["rock",  "scissors", "paper"]
         for i in range(100,size[0]-1, 100):
             for j in range(100, size[1]-1, 100):
-                type = np.random.choice(types)
+                type = np.random.choice(self.types)
                 self.players.append(Player([i, j], type))
                 self.lists[type].append(self.players[-1])
+        # type1 = "rock"
+        # type2="paper"
+        # self.players.append(Player([100, 100], type1))
+        # self.lists[type1].append(self.players[-1])
+        # self.players.append(Player([110, 100], type2))
+        # self.lists[type2].append(self.players[-1])
         self.step()
     
     def step(self):
@@ -86,9 +95,20 @@ class Win:
             player.move(self)
         # if not self.steps%10:
             # print(time.time()-start_time)
+        self.check()
         self.board.after(50, self.step)
     
     def check(self):
+        for type in self.types:
+            for player in self.lists[type]:
+                for enemy in self.lists[self.loses[type]]:
+                    if player.distance(enemy)<=self.radius:
+                        self.lists[type].remove(player)
+                        self.lists[enemy.type].append(player)
+                        player.type = enemy.type
+                        player.draw(self.board)
+                        break
+
         return
 
 
