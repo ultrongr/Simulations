@@ -7,7 +7,7 @@ import threading
 import os
 
 size  = [1000, 700]
-np.random.seed(123)
+np.random.seed(12)
 
 class Player:
     def __init__(self, coords, type):
@@ -16,7 +16,6 @@ class Player:
         self.coords = coords
         self.x = coords[0]
         self.y = coords[1]
-        # self.color = color
         self.shape  = None
         self.type = type
         self.img=None
@@ -35,7 +34,10 @@ class Player:
         
         win.matrix[int(self.x), int(self.y)] = "0"
 
-        if not np.random.randint(0, 3):
+        choice = np.random.randint(0, 3)
+        moved = False
+
+        if not choice or win.lists[win.wins[self.type]]==[]:
             """Avoid enemies"""
             closest_enemy = None
             closest_distance = 100000
@@ -48,8 +50,9 @@ class Player:
                 self.direction = [-(closest_enemy.x-self.x)/max_distance, -(closest_enemy.y-self.y)/max_distance]
                 self.x += self.direction[0]*self.step
                 self.y += self.direction[1]*self.step
+                moved = True
 
-        else:
+        if choice and not moved:
             """Hunt and kill"""
             closest_pray = None
             closest_distance = 100000
@@ -59,10 +62,12 @@ class Player:
                     closest_pray = pray
             if closest_pray:
                 max_distance = max(abs(closest_pray.x-self.x), abs(closest_pray.y-self.y))
+                if max_distance==0:
+                    return
                 self.direction = [(closest_pray.x-self.x)/max_distance, (closest_pray.y-self.y)/max_distance]
                 self.x += self.direction[0]*self.step
                 self.y += self.direction[1]*self.step
-
+                moved = True
 
 
 
