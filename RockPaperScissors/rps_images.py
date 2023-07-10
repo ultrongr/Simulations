@@ -2,6 +2,9 @@ import tkinter as tk
 import numpy as np
 from PIL import ImageTk,Image 
 import time
+from playsound import playsound
+import threading
+import os
 
 size  = [1000, 700]
 np.random.seed(123)
@@ -102,6 +105,7 @@ class Win:
         self.radius = 20
 
         self.board.pack()
+        
         self.populate()
         
     
@@ -111,34 +115,45 @@ class Win:
                 type = np.random.choice(self.types)
                 self.players.append(Player([i, j], type))
                 self.lists[type].append(self.players[-1])
-        # type1 = "rock"
-        # type2="paper"
-        # self.players.append(Player([100, 100], type1))
-        # self.lists[type1].append(self.players[-1])
-        # self.players.append(Player([110, 100], type2))
-        # self.lists[type2].append(self.players[-1])
         self.step()
     
     def step(self):
-        # print(len(self.players))
         self.steps+=1
         if not self.steps%10:
             self.board.delete("all")
-            # print("deleted")
-            # start_time = time.time()
             self.start_time = time.time()
         for player in self.players:
             player.move(self)
-        # if not self.steps%10:
-            # print(time.time()-start_time)
         self.check()
         self.board.after(50, self.step)
+
+    def paper_sound(self):
+        fileName = "paper"
+        fileExtension = "mp3"
+        fullPath = fr"{os.getcwd()}\{fileName}.{fileExtension}".replace("\\", "/")
+        playsound(fullPath, block = True)
+    
+    def rock_sound(self):
+        fileName = "rock"
+        fileExtension = "mp3"
+        fullPath = fr"{os.getcwd()}\{fileName}.{fileExtension}".replace("\\", "/")
+        playsound(fullPath, block = True)
+
+    def scissors_sound(self):
+        fileName = "scissors"
+        fileExtension = "mp3"
+        fullPath = fr"{os.getcwd()}\{fileName}.{fileExtension}".replace("\\", "/")
+        playsound(fullPath, block = True)
     
     def check(self):
+        sounds = {"rock":self.rock_sound, "paper":self.paper_sound, "scissors":self.scissors_sound}
         for type in self.types:
             for player in self.lists[type]:
                 for enemy in self.lists[self.loses[type]]:
-                    if player.distance(enemy)<=self.radius:
+                    if player.distance(enemy)<=self.radius:                        
+                        t = threading.Thread(target=sounds[enemy.type])
+                        t.start()
+
                         self.lists[type].remove(player)
                         self.lists[enemy.type].append(player)
                         player.type = enemy.type
