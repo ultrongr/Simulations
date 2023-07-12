@@ -7,7 +7,7 @@ import threading
 import os
 
 size  = [1000, 700]
-np.random.seed(12)
+np.random.seed(1234)
 
 class Player:
     def __init__(self, coords, type):
@@ -70,6 +70,9 @@ class Player:
                 moved = True
 
 
+        if not moved:
+            self.x += self.direction[0]*self.step
+            self.y += self.direction[1]*self.step
 
         
         """Random walk"""
