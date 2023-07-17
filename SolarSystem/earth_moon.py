@@ -8,13 +8,14 @@ import time
 #radius in 1000km
 #mass in kg
 
-screen_size  = [1500, 1000]
-zoom = 100
+# screen_size  = [2700, 1050]
+screen_size  = [1500, 880]
+zoom = 150
 
 class Planet:
 
     def __init__(self, canvas, x, y, velocity, radius, mass, color, personal_display_size, immovable=False):
-        self.display_size = personal_display_size*zoom
+        self.display_size = personal_display_size
         self.canvas = canvas
         self.x = x
         self.y = y
@@ -29,8 +30,9 @@ class Planet:
     def draw(self):
         if self.planet:
             self.canvas.delete(self.planet)
-        self.planet = self.canvas.create_oval(zoom*self.x-self.display_size*self.radius, zoom*self.y-self.display_size*self.radius,
-                zoom*self.x+self.display_size*self.radius, zoom*self.y+self.display_size*self.radius, fill=self.color)
+        display_size = self.display_size*zoom
+        self.planet = self.canvas.create_oval(zoom*self.x-display_size*self.radius, zoom*self.y-display_size*self.radius,
+                zoom*self.x+display_size*self.radius, zoom*self.y+display_size*self.radius, fill=self.color)
     
     
 
@@ -39,11 +41,14 @@ class Win:
     
     def __init__(self, root):
         self.root = root
-        self.canvas = tk.Canvas(root, width=screen_size[0], height=screen_size[1], bg="black")
+        self.setup_root()
+        self.canvas = tk.Canvas(self.root, width=screen_size[0], height=screen_size[1], bg="black")
         self.canvas.pack()
+        # self.canvas.bind("<space>", self.click)
         self.planets = []
-        self.time_step=10**2
+        self.time_step=10**2.5
         self.populate()
+        self.time=0
         self.simulate()
 
     def populate(self):
@@ -77,15 +82,17 @@ class Win:
                     other_m = other_planet.mass # kg -> kg
                     K = 6.67408*10**-11
                     distance = (Dx**2 + Dy**2)**0.5
-                    print(distance)
-                    acceleration = (K * other_planet.mass / distance**2)/1000 # m/s -> km/s
+                    # print(distance)
+                    acceleration = (K * other_planet.mass / distance**2)/1000 # m/s^2 -> km/s^2
                     planet.velocity = (planet.velocity[0]-self.time_step*acceleration * Dx / distance, planet.velocity[1]-self.time_step* acceleration * Dy / distance)
+                    # print(planet.velocity)
         
 
         """Calculate positions"""
         counter=0
         for planet in self.planets:
             if planet.immovable:
+                planet.draw()
                 continue
             counter+=1
             # velocity is in km/s
@@ -100,7 +107,33 @@ class Win:
                 # print(planet.y)
                 # print("")
             planet.draw()
+        self.time = self.time_step + self.time
+        # print(self.time/3600)
         self.canvas.after(1, self.simulate)
+
+
+    def setup_root(self):
+        self.root.bind("<Escape>", lambda e: self.root.destroy())
+        self.root.bind("<MouseWheel>", self.wheel)
+        self.root.bind("<Key>", self.keypress)
+    
+    def keypress(self, event):
+        print(event)
+        offset =[0,0]
+        moving = { "w": [0, 1], "a": [1,0], "s": [0,-1], "d": [-1,0] }
+        offset = moving.get(event.char, [0,0])
+        if not offset:
+            return
+        moving_step  = 1
+        for planet in self.planets:
+            planet.x += moving_step * offset[0]
+            planet.y += moving_step * offset[1]
+            planet.draw()
+
+    def wheel(self, event):
+        global zoom
+        zoom+=5*event.delta/120
+        print(zoom)
 
 root = tk.Tk()
 root.geometry(f"{screen_size[0]}x{screen_size[1]}+10+10")
