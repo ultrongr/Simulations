@@ -10,7 +10,7 @@ import time
 
 # screen_size  = [2700, 1050]
 screen_size  = [1500, 880]
-zoom = 2
+zoom = 1
 
 class Planet:
 
@@ -45,6 +45,7 @@ class Win:
         self.canvas = tk.Canvas(self.root, width=screen_size[0], height=screen_size[1], bg="black")
         self.canvas.pack()
         # self.canvas.bind("<space>", self.click)
+        self.previous_drag = (0,0)
         self.planets = []
         self.time_step=10**2.5
         self.populate()
@@ -110,7 +111,7 @@ class Win:
                 # print("")
             planet.draw()
         self.time = self.time_step + self.time
-        print(self.time/(24*3600))
+        # print(self.time/(24*3600))
         self.canvas.after(1, self.simulate)
 
 
@@ -118,9 +119,23 @@ class Win:
         self.root.bind("<Escape>", lambda e: self.root.destroy())
         self.root.bind("<MouseWheel>", self.wheel)
         self.root.bind("<Key>", self.keypress)
+        self.root.bind("<B1-Motion>", self.drag)
+        self.root.bind("<Button-1>", self.click)
+    
+    def click(self, event):
+        self.previous_drag = (event.x, event.y)
+    
+    def drag(self, event):
+        if self.previous_drag==(0,0):
+            self.previous_drag = (event.x, event.y)        
+        offset = [event.x-self.previous_drag[0], event.y-self.previous_drag[1]]
+        self.previous_drag = (event.x, event.y)
+        for planet in self.planets:
+            planet.x += offset[0]/zoom
+            planet.y += offset[1]/zoom
+            planet.draw()
     
     def keypress(self, event):
-        # print(event)
         offset =[0,0]
         moving = { "w": [0, 1], "a": [1,0], "s": [0,-1], "d": [-1,0] }
         offset = moving.get(event.char, [0,0])
@@ -134,8 +149,8 @@ class Win:
 
     def wheel(self, event):
         global zoom
-        zoom+=2*event.delta/120
-        print(zoom)
+        zoom+=0.1*zoom*event.delta/120
+        # self.previous_drag=(0,0)
 
 root = tk.Tk()
 root.geometry(f"{screen_size[0]}x{screen_size[1]}+10+10")
