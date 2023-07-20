@@ -63,18 +63,28 @@ class Win:
 
         spawn_offset =[180, 180]
         sun = Planet(self.canvas, x=0+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,0), radius=696.340, mass=1.989*10**30 , color="yellow", personal_display_size=10**-2, immovable=True)
-        earth = Planet(self.canvas, x=147+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3), radius=6.371, mass=5.972*10**24 , color="blue", personal_display_size=10**-2,immovable=False)
-        moon = Planet(self.canvas, x=147.360+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3+1.082), radius=1.737, mass=7.3*10**22 , color="grey", personal_display_size=10**-2,immovable=False)
+        mercury = Planet(self.canvas, x=46+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,58.97), radius=2.439, mass=3.301*10**23 , color="brown", personal_display_size=10**-2,immovable=False)
+        venus = Planet(self.canvas, x=107.480+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,35.26), radius=6.051, mass=4.867*10**24 , color="orange", personal_display_size=10**-2,immovable=False)
+        earth = Planet(self.canvas, x=147.095+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3), radius=6.371, mass=5.972*10**24 , color="blue", personal_display_size=10**-2,immovable=False)
+        moon = Planet(self.canvas, x=147.095+0.363+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3+1.082), radius=1.738, mass=7.346*10**22 , color="grey", personal_display_size=10**-2,immovable=False)
+        
+        
 
         self.planets.append(sun)
+        self.planets.append(mercury)
+        self.planets.append(venus)
         self.planets.append(earth)
         self.planets.append(moon)
+        
+        
         sun.name = "Sun"
         earth.name = "Earth"
         moon.name = "Moon"
+        venus.name = "Venus"
+        mercury.name = "Mercury"
 
-        self.locked=False
-        self.locked_on=0
+        self.locked=True
+        self.locked_on=3
     
     def simulate(self):
 
@@ -100,8 +110,8 @@ class Win:
                     other_m = other_planet.mass # kg -> kg
                     K = 6.67408*10**-11
                     distance = (Dx**2 + Dy**2)**0.5
-                    # if distance < 140318173421:
-                    #     print(distance, planet.x, planet.y, zoom)
+                    if planet.name == "Mercury" and other_planet.name == "Sun":
+                        print(distance)
 
                     acceleration = (K * other_planet.mass / distance**2)/1000 # m/s^2 -> km/s^2
                     # if planet.name == "Moon" and other_planet.name == "Earth":
