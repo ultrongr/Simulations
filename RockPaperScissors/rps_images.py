@@ -12,7 +12,7 @@ np.random.seed(1234)
 class Player:
     def __init__(self, coords, type):
         self.size = 20
-        self.step = 3
+        self.step = 4
         self.coords = coords
         self.x = coords[0]
         self.y = coords[1]
