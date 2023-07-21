@@ -8,9 +8,12 @@ import time
 #radius in 1000km
 #mass in kg
 
-# screen_size  = [2700, 1050]
-screen_size  = [1500, 880]
+# simulation_size  = [2700, 1050]
+simulation_size  = [1500, 880]
+options_size = [200, 880]
 zoom = 2
+
+
 class Planet:
 
     def __init__(self, canvas, x, y, velocity, radius, mass, color, personal_display_size, immovable=False):
@@ -42,15 +45,14 @@ class Win:
     def __init__(self, root):
         self.root = root
         self.setup_root()
-        self.canvas = tk.Canvas(self.root, width=screen_size[0], height=screen_size[1], bg="black")
+
+
         self.canvas.pack()
-        # self.canvas.bind("<space>", self.click)
         self.previous_drag = (0,0)
         self.planets = []
         self.time_step=10**2.5
-        self.locked = False
-        self.locked_on = 0
         self.populate()
+        self.setup_options()
         self.time=0
         self.simulate()
 
@@ -62,11 +64,12 @@ class Win:
 
 
         spawn_offset =[180, 180]
-        sun = Planet(self.canvas, x=0+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,0), radius=696.340, mass=1.989*10**30 , color="yellow", personal_display_size=10**-2, immovable=True)
-        mercury = Planet(self.canvas, x=46+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,58.97), radius=2.439, mass=3.301*10**23 , color="brown", personal_display_size=10**-2,immovable=False)
-        venus = Planet(self.canvas, x=107.480+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,35.26), radius=6.051, mass=4.867*10**24 , color="orange", personal_display_size=10**-2,immovable=False)
-        earth = Planet(self.canvas, x=147.095+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3), radius=6.371, mass=5.972*10**24 , color="blue", personal_display_size=10**-2,immovable=False)
-        moon = Planet(self.canvas, x=147.095+0.363+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3+1.082), radius=1.738, mass=7.346*10**22 , color="grey", personal_display_size=10**-2,immovable=False)
+        scale = -1.5
+        sun = Planet(self.canvas, x=0+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,0), radius=696.340, mass=1.989*10**30 , color="yellow", personal_display_size=10**scale, immovable=True)
+        mercury = Planet(self.canvas, x=46+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,58.97), radius=2.439, mass=3.301*10**23 , color="brown", personal_display_size=10**scale ,immovable=False)
+        venus = Planet(self.canvas, x=107.480+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,35.26), radius=6.051, mass=4.867*10**24 , color="orange", personal_display_size=10**scale ,immovable=False)
+        earth = Planet(self.canvas, x=147.095+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3), radius=6.371, mass=5.972*10**24 , color="blue", personal_display_size=10**scale ,immovable=False)
+        moon = Planet(self.canvas, x=147.095+0.363+spawn_offset[0], y=0+spawn_offset[1], velocity=(0,30.3+1.082), radius=1.738, mass=7.346*10**22 , color="grey", personal_display_size=10**scale ,immovable=False)
         
         
 
@@ -83,14 +86,14 @@ class Win:
         venus.name = "Venus"
         mercury.name = "Mercury"
 
-        self.locked=True
-        self.locked_on=3
+        self.locked=False
+        self.locked_on=1
     
     def simulate(self):
 
         if self.locked:
             locked_cords = [self.planets[self.locked_on].x, self.planets[self.locked_on].y]
-            screen_center = [screen_size[0]/2, screen_size[1]/2]
+            screen_center = [simulation_size[0]/2, simulation_size[1]/2]
             offset = [screen_center[0]-locked_cords[0]*zoom, screen_center[1]-locked_cords[1]*zoom]
 
             for planet in self.planets:
@@ -104,21 +107,17 @@ class Win:
             if planet.immovable:
                 continue
             for other_planet in self.planets:
-                if planet != other_planet:
-                    Dx = (planet.x - other_planet.x)*10**9 #M km -> m
-                    Dy = (planet.y - other_planet.y)*10**9 #M km -> m
-                    other_m = other_planet.mass # kg -> kg
-                    K = 6.67408*10**-11
-                    distance = (Dx**2 + Dy**2)**0.5
-                    if planet.name == "Mercury" and other_planet.name == "Sun":
-                        print(distance)
+                if planet == other_planet:
+                    continue
+                
+                Dx = (planet.x - other_planet.x)*10**9 #M km -> m
+                Dy = (planet.y - other_planet.y)*10**9 #M km -> m
+                other_m = other_planet.mass # kg -> kg
+                K = 6.67408*10**-11
+                distance = (Dx**2 + Dy**2)**0.5
 
-                    acceleration = (K * other_planet.mass / distance**2)/1000 # m/s^2 -> km/s^2
-                    # if planet.name == "Moon" and other_planet.name == "Earth":
-                    #     print("Moon, earth:", acceleration)
-                    # if planet.name == "Moon" and other_planet.name == "Sun":
-                    #     print("Moon,   sun:", acceleration)
-                    planet.velocity = (planet.velocity[0]-self.time_step*acceleration * Dx / distance, planet.velocity[1]-self.time_step* acceleration * Dy / distance)
+                acceleration = (K * other_planet.mass / distance**2)/1000 # m/s^2 -> km/s^2
+                planet.velocity = (planet.velocity[0]-self.time_step*acceleration * Dx / distance, planet.velocity[1]-self.time_step* acceleration * Dy / distance)
 
         
 
@@ -134,18 +133,59 @@ class Win:
 
             planet.draw()
         self.time = self.time_step + self.time
-        # print(self.time/(24*3600))
+        # self.time = 3600*24*100000
+        text = f"Time: {self.time/(3600*24):.1f} days"
+        # print(len(text))
+        padd =22-len(text) 
+        self.days_label.config(text=f"Time: {padd*' '}{self.time/(3600*24):.1f} days")
         self.canvas.after(1, self.simulate)
 
 
     def setup_root(self):
-        self.root.bind("<Escape>", lambda e: self.root.destroy())
-        self.root.bind("<MouseWheel>", self.wheel)
-        self.root.bind("<Key>", self.keypress)
-        self.root.bind("<B1-Motion>", self.drag)
-        self.root.bind("<Button-1>", self.click)
+        # self.root.take_focus()
+        self.sim_frame = tk.Frame(self.root, width=simulation_size[0], height=simulation_size[1], bg="black")
+        self.sim_frame.pack(anchor = "w", side = "left")
+        self.canvas = tk.Canvas(self.sim_frame, width=simulation_size[0], height=simulation_size[1], bg="black")
+        self.canvas.bind("<Escape>", lambda e: self.root.destroy())
+        self.canvas.bind("<MouseWheel>", self.wheel)
+        self.canvas.bind("<Key>", self.keypress)
+        self.canvas.bind("<B1-Motion>", self.drag)
+        self.canvas.bind("<Button-1>", self.click)
+        self.canvas.focus_set()
+
+        self.options_frame = tk.Frame(self.root, width=options_size[0], height=options_size[1], bg="gray")
+        self.options_frame.pack(anchor = "nw", side="left", fill = "x")
+        
+    def setup_options(self):
+        self.days_frame = tk.Frame(self.options_frame, width=options_size[0], height=100, bg="gray")
+        self.days_frame.pack(anchor="nw", side="top", fill = "x")
+        self.days_label = tk.Label(self.days_frame, text="Time: 0", font=("Arial", 15))
+        self.days_label.pack(anchor="nw", side="top", expand = True, fill = "x")
+        # self.days_label.grid(row=0, sticky = "n")
+        self.planet_buttons_frame = tk.Frame(self.options_frame, width=options_size[0], height=len(self.planets)*25, bg="gray")
+        self.planet_buttons_frame.pack(anchor="nw", side="top", fill = "x")
+        self.locked_on_label = tk.Label(self.planet_buttons_frame, text=f"Locked on:{15*' '}", font=("Arial", 15))
+        self.locked_on_label.grid(row=0, sticky = "n")
+        self.planet_buttons = []
+        for planet in self.planets:
+            self.planet_buttons.append(tk.Button(self.planet_buttons_frame, text=planet.name, font = ("Arial", 15), command=lambda planet=planet: self.lock(planet)))
+            self.planet_buttons[-1].grid(row = self.planets.index(planet)+1, sticky="nsew")
+        self.unlock_button = tk.Button(self.planet_buttons_frame, text="(Unlock)", font = ("Arial", 15), command=lambda: self.unlock())
+        self.unlock_button.grid(row = len(self.planets)+1, sticky="nsew")
     
+    def lock(self, planet):
+        self.locked=True
+        self.locked_on = self.planets.index(planet)
+        # self.time = 0
+        self.days_label.config(text=f"Time: {self.time}")
+        self.canvas.focus_set()
+    
+    def unlock(self):
+        self.locked=False
+        # self.canvas.focus_set()
+
     def click(self, event):
+        print("click")
         self.previous_drag = (event.x, event.y)
     
     def drag(self, event):
@@ -182,7 +222,7 @@ class Win:
         
         if self.locked:
             locked_cords = [self.planets[self.locked_on].x, self.planets[self.locked_on].y]
-            screen_center = [screen_size[0]/2, screen_size[1]/2]  
+            screen_center = [simulation_size[0]/2, simulation_size[1]/2]  
             offset = [screen_center[0]-locked_cords[0]*zoom, screen_center[1]-locked_cords[1]*zoom]
         else:
             locked_cords= [event.x/old_zoom, event.y/old_zoom]
@@ -195,8 +235,8 @@ class Win:
             planet.draw()
 
 root = tk.Tk()
-root.geometry(f"{screen_size[0]}x{screen_size[1]}+10+10")
-root.configure(bg="#FFFFFF")
+root.geometry(f"{simulation_size[0]+options_size[0]}x{simulation_size[1]}+10+10")
+# root.configure(bg="#FFFFFF")
 Win(root)
 
 root.mainloop()
