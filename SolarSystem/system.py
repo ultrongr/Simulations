@@ -1,6 +1,4 @@
 import tkinter as tk
-import numpy as np
-from PIL import ImageTk,Image 
 import time
 
 #x,y in millions of km
@@ -8,7 +6,6 @@ import time
 #radius in 1000km
 #mass in kg
 
-# simulation_size  = [2700, 1050]
 simulation_size  = [1500, 880]
 options_size = [200, 880]
 zoom = 2
@@ -88,12 +85,8 @@ class Win:
         mercury.name = "Mercury"
 
         self.locked=False
-        self.locked_on=1
     
     def simulate(self):
-        self.counter+=1
-        if self.counter%10000==0:
-            self.update_options()
 
         if self.locked:
             locked_cords = [self.planets[self.locked_on].x, self.planets[self.locked_on].y]
@@ -137,9 +130,7 @@ class Win:
 
             planet.draw()
         self.time = self.time_step + self.time
-        # self.time = 3600*24*100000
         text = f"Time: {self.time/(3600*24):.1f} days"
-        # print(len(text))
         padd =22-len(text) 
         self.days_label.config(text=f"Time: {padd*' '}{self.time/(3600*24):.1f} days")
         self.canvas.after(1, self.simulate)
@@ -149,10 +140,8 @@ class Win:
         for planet in self.planets:
             planet.display_size = float(planet.size_box.get())
         self.canvas.focus_set()
-        # print("updated")
 
     def setup_root(self):
-        # self.root.take_focus()
         self.sim_frame = tk.Frame(self.root, width=simulation_size[0], height=simulation_size[1], bg="black")
         self.sim_frame.pack(anchor = "w", side = "left")
         self.canvas = tk.Canvas(self.sim_frame, width=simulation_size[0], height=simulation_size[1], bg="black")
@@ -174,8 +163,6 @@ class Win:
 
         self.time_step_frame = tk.Frame(self.options_frame, width=options_size[0], height=100, bg="gray")
         self.time_step_frame.pack(anchor="nw", side="top", fill = "x")
-        # self.time_step_label = tk.Label(self.time_step_frame, text="Time step:", font=("Arial", 15))
-        # self.time_step_label.pack(anchor="nw", side="left", expand = True, fill = "x")
         self.time_step_button = tk.Button(self.time_step_frame, text="Time step:", font=("Arial", 13), height=1, command=lambda: self.update_options())
         self.time_step_button.pack(anchor="nw", side="left", expand = False, fill = "x")
 
@@ -185,34 +172,21 @@ class Win:
 
         self.sizes_frame = tk.Frame(self.options_frame, width=options_size[0], height=100, bg="#F0F0F0")
         self.sizes_frame.pack(anchor="nw", side="top", fill = "x")
-        # self.sizes_label = tk.Label(self.sizes_frame, text=f"{9*' '}Sizes:{10*' '}", font=("Arial", 18))
-        self.sizes_label = tk.Label(self.sizes_frame, text=f"\nSizes:", font=("Arial", 18))
+        self.sizes_label = tk.Label(self.sizes_frame, text=f"\n\nSizes:", font=("Arial", 18))
         self.sizes_label.grid(row=0,columnspan = 2, sticky = "nw")
-        # self.sizes_label.pack(anchor="nw", side="top", expand = True, fill = "x")
         for planet in self.planets:
             planet.size_frame = tk.Frame(self.sizes_frame, width=options_size[0], height=100, bg="#F0F0F0")
             planet.size_frame.grid(row=self.planets.index(planet)+1, columnspan=2, sticky = "n")
-            # planet.size_label = tk.Label(planet.size_frame, text=f"{planet.name}:", font=("Arial", 15))
-            # planet.size_label.pack(anchor="w", side="left", expand = True, fill = "x")
             planet.size_button = tk.Button(planet.size_frame, text=f"{planet.name}", font=("Arial", 12), height=1, command=lambda: self.update_options())
             planet.size_button.pack(anchor="nw", side="left", expand = False, fill = "x")
             planet.size_box = tk.Entry(planet.size_frame, font = ("Arial", 19))
             planet.size_box.insert(0, f"{planet.display_size}")
             planet.size_box.pack(anchor="ne", side="right", expand = True, fill = "x")
 
-            # planet.size_label = tk.Label(self.sizes_frame, text=f"{planet.name} size:", font=("Arial", 15))
-            # # planet.size_label.pack(anchor="nw", side="left", expand = True, fill = "x")
-            # planet.size_label.grid(row=self.planets.index(planet)+1, columnspan=1, sticky = "n")
-            # planet.size_box = tk.Entry(self.sizes_frame, font = ("Arial", 15))
-            # planet.size_box.insert(0, f"{planet.display_size} ")
-            # # planet.size_box.pack(anchor="nw", side="right", expand = True, fill = "x")
-            # print(planet)
-            # planet.size_box.grid(row=self.planets.index(planet)+1, columnspan=1)
-
 
         self.planet_buttons_frame = tk.Frame(self.options_frame, width=options_size[0], height=len(self.planets)*25, bg="gray")
         self.planet_buttons_frame.pack(anchor="nw", side="top", fill = "x")
-        self.locked_on_label = tk.Label(self.planet_buttons_frame, text=f"Locked on:{16*' '}", font=("Arial", 15))
+        self.locked_on_label = tk.Label(self.planet_buttons_frame, text=f"\n\nLocked on:{18*' '}", font=("Arial", 15))
         self.locked_on_label.grid(row=0, sticky = "n")
         self.planet_buttons = []
         for planet in self.planets:
@@ -220,22 +194,17 @@ class Win:
             self.planet_buttons[-1].grid(row = self.planets.index(planet)+1, sticky="nsew")
         self.unlock_button = tk.Button(self.planet_buttons_frame, text="(Unlock)", font = ("Arial", 15), command=lambda: self.unlock())
         self.unlock_button.grid(row = len(self.planets)+1, sticky="nsew")
-
-        
-    
+ 
     def lock(self, planet):
         self.locked=True
         self.locked_on = self.planets.index(planet)
-        # self.time = 0
         self.days_label.config(text=f"Time: {self.time}")
         self.canvas.focus_set()
     
     def unlock(self):
         self.locked=False
-        # self.canvas.focus_set()
 
     def click(self, event):
-        # print("click")
         self.previous_drag = (event.x, event.y)
     
     def drag(self, event):
@@ -286,7 +255,6 @@ class Win:
 
 root = tk.Tk()
 root.geometry(f"{simulation_size[0]+options_size[0]}x{simulation_size[1]}+10+10")
-# root.configure(bg="#FFFFFF")
 Win(root)
 
 root.mainloop()
