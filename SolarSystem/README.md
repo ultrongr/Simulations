@@ -11,3 +11,7 @@ The simulation allows you to:
 - Lock on a Planet and follow its orbit.
 - Change the apparent size of planets (for better observation).
 - Change the time step of the simulation (the speed is x1000xtime_step of real time)
+
+
+
+https://youtu.be/vMrI7H6gNrY
