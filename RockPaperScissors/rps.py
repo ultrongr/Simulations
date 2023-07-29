@@ -12,13 +12,14 @@ np.random.seed(1234)
 class Player:
     def __init__(self, coords, type):
         self.size = 20
-        self.step = 4
+        self.step = 3
         self.coords = coords
         self.x = coords[0]
         self.y = coords[1]
         self.shape  = None
         self.type = type
         self.img=None
+        self.decision="attack"
         
         self.img=None
     
@@ -34,10 +35,16 @@ class Player:
         
         win.matrix[int(self.x), int(self.y)] = "0"
 
-        choice = np.random.randint(0, 3)
+        choice = np.random.randint(0, 10)
         moved = False
+        
+        if not choice:
+            if self.decision == "attack":
+                self.decision = "avoid"
+            else:
+                self.decision = "attack"
 
-        if not choice or win.lists[win.wins[self.type]]==[]:
+        if self.decision == "avoid" or win.lists[win.wins[self.type]]==[]:
             """Avoid enemies"""
             closest_enemy = None
             closest_distance = 100000
@@ -51,8 +58,8 @@ class Player:
                 self.x += self.direction[0]*self.step
                 self.y += self.direction[1]*self.step
                 moved = True
-
-        if choice and not moved:
+        
+        else:
             """Hunt and kill"""
             closest_pray = None
             closest_distance = 100000
