@@ -111,12 +111,15 @@ class Win:
             self.ball.speed_after_bounce(self.circle)
         self.ball.x += self.ball.vx
         self.ball.y += self.ball.vy
+
+        ### Create afterimage
         if (after_image_pos[0]-self.ball.x)**2 + (after_image_pos[1]-self.ball.y)**2 > 10**2:
             # self.canvas.delete("after_image")
             self.canvas.create_oval(self.ball.x-10, self.ball.y-10, self.ball.x+10, self.ball.y+10, fill=after_image)
             after_image_pos[0] = self.ball.x
             after_image_pos[1] = self.ball.y
         self.canvas.move(self.ball.shape, self.ball.vx, self.ball.vy)
+        self.canvas.tag_raise(self.ball.shape)
 
         self.canvas.after(1, self.update)
         
