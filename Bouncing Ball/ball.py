@@ -4,9 +4,19 @@ import math
 
 simulation_size = (800, 600)
 
-g=1e-4
-after_image = "pink"
+G=1e-4
+
+rate = [-1, 1, 0]
+after_image_color = "#FF0000"
 after_image_pos = [0,0]
+
+edges = {
+    (0, 255, 0):[0, -1, 1],
+    (0, 0, 255):[1, 1, -1],
+    (255, 255, 0):[0, -1, 1],
+    (255, 0, 255):[-1, 1, 0],
+    (0, 255, 255):[0, -1, -1],
+}
 
 class Circle:
 
@@ -102,7 +112,7 @@ class Win:
         self.canvas.pack()
     
     def update(self):
-        self.ball.vy += g
+        self.ball.vy += G
 
         ### Check for collision with circle
         dx = self.circle.x - self.ball.x
@@ -115,10 +125,44 @@ class Win:
         ### Create afterimage
         if (after_image_pos[0]-self.ball.x)**2 + (after_image_pos[1]-self.ball.y)**2 > 10**2:
             # self.canvas.delete("after_image")
-            self.canvas.create_oval(self.ball.x-10, self.ball.y-10, self.ball.x+10, self.ball.y+10, fill=after_image)
+            global after_image_color
+            global rate
+            r = int(after_image_color[1:3], 16)
+            g = int(after_image_color[3:5], 16)
+            b = int(after_image_color[5:], 16)
+            r+=rate[0]
+            g+= rate[1]
+            b+= rate[2]
+            if r>255:
+                r=255
+            if r<0:
+                r=0
+            if g<0:
+                g=0
+            if g>255:
+                g=255
+            if b>255:
+                b=255
+            if b<0:
+                b=0
+            # print("rgb", r,g,b)
+            if (r,g,b) in edges:
+                rate = edges[(r,g,b)]
+            r = "0"*(2-len(hex(r)[2:])) + hex(r)[2:]
+            g = "0"*(2-len(hex(g)[2:])) + hex(g)[2:]
+            b = "0"*(2-len(hex(b)[2:])) + hex(b)[2:]
+
+
+            after_image_color = "#"+r+g+b
+            after_image = self.canvas.create_oval(self.ball.x-10, self.ball.y-10, self.ball.x+10, self.ball.y+10, fill=after_image_color)
+            self.canvas.itemconfig(self.ball.shape, fill=after_image_color)
             after_image_pos[0] = self.ball.x
             after_image_pos[1] = self.ball.y
+            
+
+            
         self.canvas.move(self.ball.shape, self.ball.vx, self.ball.vy)
+        
         self.canvas.tag_raise(self.ball.shape)
 
         self.canvas.after(1, self.update)
