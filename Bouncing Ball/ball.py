@@ -14,7 +14,7 @@ after_image_color = "#FF0000"
 after_image_pos = [0, 0]
 
 max_wait = 0
-
+lag = 0
 edges = {
     (255, 0, 0): [-1, 1, 0],
     (0, 255, 0): [0, -1, 1],
@@ -142,6 +142,7 @@ class Win:
 
     def update(self):
         global max_wait
+        global lag
         call_time = time.time()
         self.ball.vy += G
 
@@ -166,11 +167,16 @@ class Win:
         if after_image_created:
             self.canvas.tag_raise(self.ball.shape)
         spent_time = time.time() - call_time
+        lag += spent_time
 
-        if round(1000 * spent_time) > max_wait:
-            max_wait = round(1000 * spent_time)
-            print(max_wait)
-        self.canvas.after(int(1000 / frames) - round(1000 * spent_time), self.update)
+        if 1000*lag < 1:
+            self.canvas.after(int(1000 / frames), self.update)
+            return
+        else:
+            # print("lag")
+            temp = 1000 * lag
+            lag -= int(temp) / 1000
+            self.canvas.after(int(1000 / frames) - int(temp), self.update)
 
 
 root = tk.Tk()
