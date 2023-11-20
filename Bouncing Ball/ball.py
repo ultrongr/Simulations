@@ -104,7 +104,44 @@ class Win:
         self.canvas.tag_raise(self.ball)
         self.canvas.pack()
 
+    def create_after_image(self):
+        # self.canvas.delete("after_image")
+        global after_image_color
+        global rate
+        r = int(after_image_color[1:3], 16)
+        g = int(after_image_color[3:5], 16)
+        b = int(after_image_color[5:], 16)
+        r += rate[0]
+        g += rate[1]
+        b += rate[2]
+        if r > 255:
+            r = 255
+        if r < 0:
+            r = 0
+        if g < 0:
+            g = 0
+        if g > 255:
+            g = 255
+        if b > 255:
+            b = 255
+        if b < 0:
+            b = 0
+        # print("rgb", r,g,b)
+        if (r, g, b) in edges:
+            rate = edges[(r, g, b)]
+        r = "0" * (2 - len(hex(r)[2:])) + hex(r)[2:]
+        g = "0" * (2 - len(hex(g)[2:])) + hex(g)[2:]
+        b = "0" * (2 - len(hex(b)[2:])) + hex(b)[2:]
+
+        after_image_color = "#" + r + g + b
+        after_image = self.canvas.create_oval(self.ball.x - 10, self.ball.y - 10, self.ball.x + 10,
+                                              self.ball.y + 10, fill=after_image_color)
+        self.canvas.itemconfig(self.ball.shape, fill=after_image_color)
+        after_image_pos[0] = self.ball.x
+        after_image_pos[1] = self.ball.y
+
     def update(self):
+        global max_wait
         call_time = time.time()
         self.ball.vy += G
 
@@ -112,61 +149,28 @@ class Win:
         dx = self.circle.x - self.ball.x
         dy = self.circle.y - self.ball.y
         if (dx ** 2 + dy ** 2) ** 0.5 >= self.circle.r - self.ball.r:
+            self.create_after_image()
             self.ball.speed_after_bounce(self.circle)
+
         factor = 1
-        self.ball.x += factor*self.ball.vx
-        self.ball.y += factor*self.ball.vy
+        self.ball.x += factor * self.ball.vx
+        self.ball.y += factor * self.ball.vy
 
         ### Create afterimage
         after_image_created = False
         if (after_image_pos[0] - self.ball.x) ** 2 + (after_image_pos[1] - self.ball.y) ** 2 > 15 ** 2:
-            after_image_created=True
-            # self.canvas.delete("after_image")
-            global after_image_color
-            global rate
-            r = int(after_image_color[1:3], 16)
-            g = int(after_image_color[3:5], 16)
-            b = int(after_image_color[5:], 16)
-            r += rate[0]
-            g += rate[1]
-            b += rate[2]
-            if r > 255:
-                r = 255
-            if r < 0:
-                r = 0
-            if g < 0:
-                g = 0
-            if g > 255:
-                g = 255
-            if b > 255:
-                b = 255
-            if b < 0:
-                b = 0
-            # print("rgb", r,g,b)
-            if (r, g, b) in edges:
-                rate = edges[(r, g, b)]
-            r = "0" * (2 - len(hex(r)[2:])) + hex(r)[2:]
-            g = "0" * (2 - len(hex(g)[2:])) + hex(g)[2:]
-            b = "0" * (2 - len(hex(b)[2:])) + hex(b)[2:]
+            after_image_created = True
+            self.create_after_image()
 
-            after_image_color = "#" + r + g + b
-            after_image = self.canvas.create_oval(self.ball.x - 10, self.ball.y - 10, self.ball.x + 10,
-                                                  self.ball.y + 10, fill=after_image_color)
-            self.canvas.itemconfig(self.ball.shape, fill=after_image_color)
-            after_image_pos[0] = self.ball.x
-            after_image_pos[1] = self.ball.y
-
-        self.canvas.move(self.ball.shape, factor*self.ball.vx, factor*self.ball.vy)
+        self.canvas.move(self.ball.shape, factor * self.ball.vx, factor * self.ball.vy)
         if after_image_created:
             self.canvas.tag_raise(self.ball.shape)
-        spent_time = time.time()-call_time
-        # print(spent_time)
-        if int(1000/frames)-int(1000*spent_time)<0:
-            print("<0")
-        if int(1000*spent_time)>max_wait:
-            max_wait = int(1000*spent_time)
+        spent_time = time.time() - call_time
+
+        if round(1000 * spent_time) > max_wait:
+            max_wait = round(1000 * spent_time)
             print(max_wait)
-        self.canvas.after(int(1000/frames)-int(1000*spent_time), self.update)
+        self.canvas.after(int(1000 / frames) - round(1000 * spent_time), self.update)
 
 
 root = tk.Tk()
