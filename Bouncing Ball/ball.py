@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 import math
 
 simulation_size = (800, 600)
@@ -8,13 +7,10 @@ frames = 200
 
 G = 3e-2
 
-# rate = [-1, 1, 0]
 rate = [-1, 1, 0]
 after_image_color = "#FF0000"
 after_image_pos = [0, 0]
 
-max_wait = 0
-lag = 0
 edges = {
     (255, 0, 0): [-1, 1, 0],
     (0, 255, 0): [0, -1, 1],
@@ -75,15 +71,6 @@ class Win:
         self.sim_frame = tk.Frame(self.root, width=simulation_size[0], height=simulation_size[1], bg="black")
         self.sim_frame.pack(anchor="w", side="left")
         self.canvas = tk.Canvas(self.sim_frame, width=simulation_size[0], height=simulation_size[1], bg="black")
-        # self.canvas.bind("<Escape>", lambda e: self.root.destroy())
-        # self.canvas.bind("<MouseWheel>", self.wheel)
-        # self.canvas.bind("<Key>", self.keypress)
-        # self.canvas.bind("<B1-Motion>", self.drag)
-        # self.canvas.bind("<Button-1>", self.click)
-        # self.canvas.focus_set()
-
-        # self.options_frame = tk.Frame(self.root, width=options_size[0], height=options_size[1], bg="gray")
-        # self.options_frame.pack(anchor = "nw", side="left")
 
     def create_circle(self):
         x, y = simulation_size[0] / 2, simulation_size[1] / 2
@@ -93,7 +80,6 @@ class Win:
 
     def create_balls(self):
         x, y = simulation_size[0] / 2, simulation_size[1] / 2
-        # x+=100
         vx, vy = -1., 1.
         r = 10
         color = "red"
@@ -109,26 +95,13 @@ class Win:
         global after_image_color
         global rate
 
-
         r = int(after_image_color[1:3], 16)
         g = int(after_image_color[3:5], 16)
         b = int(after_image_color[5:], 16)
         r += rate[0]
         g += rate[1]
         b += rate[2]
-        if r > 255:
-            r = 255
-        if r < 0:
-            r = 0
-        if g < 0:
-            g = 0
-        if g > 255:
-            g = 255
-        if b > 255:
-            b = 255
-        if b < 0:
-            b = 0
-        # print("rgb", r,g,b)
+
         if (r, g, b) in edges:
             rate = edges[(r, g, b)]
         r = "0" * (2 - len(hex(r)[2:])) + hex(r)[2:]
@@ -143,33 +116,29 @@ class Win:
         after_image_pos[1] = self.ball.y
 
     def update(self):
-        global max_wait
-        global lag
         self.canvas.after(int(1000 / frames), self.update)
-        
+
         self.ball.vy += G
 
-        ### Check for collision with circle
+        # Check for collision with circle
         dx = self.circle.x - self.ball.x
         dy = self.circle.y - self.ball.y
         if (dx ** 2 + dy ** 2) ** 0.5 >= self.circle.r - self.ball.r:
             self.create_after_image()
             self.ball.speed_after_bounce(self.circle)
 
-        factor = 1
-        self.ball.x += factor * self.ball.vx
-        self.ball.y += factor * self.ball.vy
+        self.ball.x += self.ball.vx
+        self.ball.y += self.ball.vy
 
-        ### Create afterimage
+        # Create afterimage
         after_image_created = False
         if (after_image_pos[0] - self.ball.x) ** 2 + (after_image_pos[1] - self.ball.y) ** 2 > 15 ** 2:
             after_image_created = True
             self.create_after_image()
 
-        self.canvas.move(self.ball.shape, factor * self.ball.vx, factor * self.ball.vy)
+        self.canvas.move(self.ball.shape, self.ball.vx, self.ball.vy)
         if after_image_created:
             self.canvas.tag_raise(self.ball.shape)
-        # self.canvas.after(int(1000 / frames), self.update)
 
 
 root = tk.Tk()
