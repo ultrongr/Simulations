@@ -105,9 +105,11 @@ class Win:
         self.canvas.pack()
 
     def create_after_image(self):
-        # self.canvas.delete("after_image")
+
         global after_image_color
         global rate
+
+
         r = int(after_image_color[1:3], 16)
         g = int(after_image_color[3:5], 16)
         b = int(after_image_color[5:], 16)
@@ -143,7 +145,8 @@ class Win:
     def update(self):
         global max_wait
         global lag
-        call_time = time.time()
+        self.canvas.after(int(1000 / frames), self.update)
+        
         self.ball.vy += G
 
         ### Check for collision with circle
@@ -166,17 +169,7 @@ class Win:
         self.canvas.move(self.ball.shape, factor * self.ball.vx, factor * self.ball.vy)
         if after_image_created:
             self.canvas.tag_raise(self.ball.shape)
-        spent_time = time.time() - call_time
-        lag += spent_time
-
-        if 1000*lag < 1:
-            self.canvas.after(int(1000 / frames), self.update)
-            return
-        else:
-            # print("lag")
-            temp = 1000 * lag
-            lag -= int(temp) / 1000
-            self.canvas.after(int(1000 / frames) - int(temp), self.update)
+        # self.canvas.after(int(1000 / frames), self.update)
 
 
 root = tk.Tk()
