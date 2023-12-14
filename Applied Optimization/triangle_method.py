@@ -8,17 +8,20 @@ simulation_size = [400, 400]
 options_size = [200, simulation_size[1]]
 zoom = 100
 
-@cache
+
 def func(_x, _y):
     return _x ** 2 + _y ** 2 + _x + _y
     # return _x**3 - 3*_x*_y**2 + 4*_y**3 - 6*_x + 8*_y
 
+
 @cache
 def value_to_color_hex(value):
-    cmap = plt.get_cmap('RdYlBu')  # You can choose a different colormap if desired
-    rgba_color = cmap(value)
+    rgba_color = value_to_color_hex.cmap(value)
     hex_color = to_hex(rgba_color)
     return hex_color
+
+
+value_to_color_hex.cmap = plt.get_cmap('RdYlBu')  # You can choose a different colormap if desired
 
 
 class Win:
