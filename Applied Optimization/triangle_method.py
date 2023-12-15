@@ -30,6 +30,20 @@ def value_to_color_hex(value):
 
 value_to_color_hex.cmap = plt.get_cmap('RdYlBu')  # You can choose a different colormap if desired
 
+class Point:
+    def __init__(self, x, y):
+        self.x=x
+        self.y=y
+        self.cords=(x,y)
+        
+        
+
+class Line:
+    def __init__(self, p1, p2):
+        self.p1 = p1
+        self.p2=p2
+        
+        
 
 class Triangle:
     def __init__(self, canvas, points):
@@ -37,7 +51,7 @@ class Triangle:
         self.points = points
         self.triangle = self.canvas.create_polygon(self.points,  fill=None,outline="black", width =1 )
         self.canvas.update()
-        self.past_positions={tuple((self.points[0], self.points[1]), (self.points[2], self.points[3]), (self.points[4], self.points[5]))}
+        self.past_positions={((self.points[0], self.points[1]), (self.points[2], self.points[3]), (self.points[4], self.points[5]))}
         return
 
     def move():
